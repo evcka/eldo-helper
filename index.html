@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>eldo helper</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+	<script type="text/javascript" src="eldo_helper.js"></script>
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <link rel="stylesheet" href="css/normalize.css">
+  <link rel="stylesheet" href="css/skeleton.css">
+
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="twelve columns" style="margin-top: 10%"></div>
+      <h1>eldo helper</h1>
+      <h2>Analysis Setup Helper</h2>
+      <button onclick="acSim()">AC</button>
+      <button onclick="dcSim()">DC</button>
+      <button onclick="tranSim()">TRAN</button>
+    </div> 
+    <div id="ac_setup" hidden="true">
+      <form id="acForm">
+        <div class="row" id="type">
+          <div class="one column">
+            <label>DEC</label><input type="radio" name="simtype" value="DEC">
+          </div>
+          <div class="one column">
+            <label>LIN</label><input type="radio" name="simtype" value="LIN">
+          </div>
+          <div class="one column">
+            <label>OCT</label><input type="radio" name="simtype" value="OCT">
+          </div>
+        </div>
+        <div class="row" id="frange">
+          <div class="four columns">
+            <label>Points per decade</label>
+            <input type="text" name="ppd">
+          </div>
+          <div class="four columns">
+            <label>From</label>
+            <input type="text" name="ffrom">
+          </div>
+          <div class="four columns">
+            <label>To</label>
+            <input type="text" name="fto">
+          </div>
+        </div>
+      </form>
+    </div>
+    <div id="tran_setup" hidden="true">
+      <form id="tranForm">
+        <div class="row" id="trange">
+          <div class="four columns">
+            <label>Print interval</label>
+            <input type="text" name="tprint">
+          </div>
+          <div class="four columns">
+            <label>Stop time</label>
+            <input type="text" name="tstop">
+          </div>
+          <div class="four columns">
+            <label>Start time (optional)</label>
+            <input type="text" name="tto">
+          </div>
+        </div>
+      </form>
+    </div>
+    <div id="dc_setup" hidden="true">
+      <form id="dcForm">
+        <div class="row" id="type">
+          <div class="three columns">
+            <label>Component / Source</label><input type="radio" name="simtype" value="">
+          </div>
+          <div class="three columns">
+            <label>Temperature</label><input type="radio" name="simtype" value="TEMP">
+          </div>
+          <div class="three columns">
+            <label>Parameter</label><input type="radio" name="simtype" value="PARAM">
+          </div>
+        </div>
+        <div class="row" id="trange">
+          <div class="six columns">
+            <label>Component / Source / Parameter name</label>
+            <input type="text" name="nam">
+          </div>
+        </div>
+        <div class="row" id="range">
+          <div class="four columns">
+            <label>Start</label>
+            <input type="text" name="start">
+          </div>
+          <div class="four columns">
+            <label>Stop</label>
+            <input type="text" name="stop">
+          </div>
+          <div class="four columns">
+            <label>Increment</label>
+            <input type="text" name="incr">
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="row" id="output_row">
+      <div class="six columns">
+        <button class="button-primary" onclick="gen()">Generate</button>
+        <h4>eldo command</h4>
+        <pre>
+          <code id="output"></code>
+        </pre>
+        <button onclick="copyToClipboard('#output')">Copy to clipboard</button>
+      </div>
+    </div>
+  </div>
+
+
+<script type="text/javascript">
+  function acSim() {
+    $("#dc_setup").hide();
+    $("#tran_setup").hide();
+    var s = $("#ac_setup");
+    s.show();
+  }
+
+  function dcSim() {
+    $("#ac_setup").hide();
+    $("#tran_setup").hide();
+    var s = $("#dc_setup");
+    s.show();
+  }
+
+  function tranSim() {
+    $("#ac_setup").hide();
+    $("#dc_setup").hide();
+    var s = $("#tran_setup");
+    s.show();
+  }
+
+  function pushCommands(out, commands) {
+    for (i in commands) {
+      var tempstr = commands[i] + ' '
+      tempstr = tempstr.toUpperCase();
+      out.append(tempstr);
+    }
+  }
+
+  function acGen(out) {
+    var commands = []
+    commands.push('.AC')
+    commands.push($('input[name=simtype]:checked', '#acForm').val());
+    commands.push($('input[name=ppd]:text', '#acForm').val());
+    commands.push($('input[name=ffrom]:text', '#acForm').val());
+    commands.push($('input[name=fto]:text', '#acForm').val());
+    pushCommands(out, commands)
+  }
+
+  function dcGen(out) {
+    var commands = []
+    commands.push('.DC')
+    var radioVal = $('input[name=simtype]:checked', '#dcForm').val()
+    if (!radioVal.localeCompare('TEMP')) {
+      console.log(radioVal);
+      commands.push(radioVal)
+    } else if (!radioVal.localeCompare('')) {
+      commands.push($('input[name=nam]:text', '#dcForm').val());
+    } else if (!radioVal.localeCompare('PARAM')) {
+      commands.push(radioVal)
+      commands.push($('input[name=nam]:text', '#dcForm').val());
+    }
+    commands.push($('input[name=start]:text', '#dcForm').val());
+    commands.push($('input[name=stop]:text', '#dcForm').val());
+    commands.push($('input[name=incr]:text', '#dcForm').val());
+
+    pushCommands(out, commands)
+  }
+
+  function tranGen(out) {
+    var commands = []
+    commands.push('.TRAN')
+    commands.push($('input[name=tprint]:text', '#tranForm').val());
+    commands.push($('input[name=tstop]:text', '#tranForm').val());
+    commands.push($('input[name=tto]:text', '#tranForm').val());
+    pushCommands(out, commands)
+  }
+
+  function gen() {
+    var o = $('#output');
+    o.empty();
+    if ($('#ac_setup').is(':visible')) {
+      acGen(o);
+    } else if ($('#dc_setup').is(':visible')) {
+      dcGen(o);
+    } else if ($('#tran_setup').is(':visible')) {
+      tranGen(o);
+    }
+  }
+
+  function copyToClipboard(element) {
+    var $temp = $("<input>");
+    $("body").append($temp);
+    $temp.val($(element).text()).select();
+    document.execCommand("copy");
+    $temp.remove();
+  }
+</script>
+</body>
+</html>
