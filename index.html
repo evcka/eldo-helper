@@ -119,15 +119,21 @@
 
 
 <script type="text/javascript">
+  $.fn.exists = function () {
+      return this.length !== 0;
+  }
+
   function acSim() {
     $("#dc_setup").hide();
     $("#tran_setup").hide();
     var s = $("#ac_setup");
-    s.append(
-      '<label>Include Parameter Sweep</label>'
-      +'<input type="checkbox" name="sweep">'
-      +'<div id="sweepParams"></div>'
-      )
+    if (!$('#sweepParams', s).exists()) {
+      s.append(
+        '<label>Include Parameter Sweep</label>'
+        +'<input type="checkbox" name="sweep">'
+        +'<div id="sweepParams"></div>'
+        )
+    }
     addSweep(s);
     s.show();
   }
@@ -136,11 +142,13 @@
     $("#ac_setup").hide();
     $("#tran_setup").hide();
     var s = $("#dc_setup");
-    s.append(
-      '<label>Include Parameter Sweep</label>'
-      +'<input type="checkbox" name="sweep">'
-      +'<div id="sweepParams"></div>'
-      )
+    if (!$('#sweepParams', s).exists()) {
+      s.append(
+        '<label>Include Parameter Sweep</label>'
+        +'<input type="checkbox" name="sweep">'
+        +'<div id="sweepParams"></div>'
+        )
+    }
     addSweep(s);
     s.show();
   }
@@ -149,11 +157,13 @@
     $("#ac_setup").hide();
     $("#dc_setup").hide();
     var s = $("#tran_setup");
-    s.append(
-      '<label>Include Parameter Sweep</label>'
-      +'<input type="checkbox" name="sweep">'
-      +'<div id="sweepParams"></div>'
-      )
+    if (!$('#sweepParams', s).exists()) {
+      s.append(
+        '<label>Include Parameter Sweep</label>'
+        +'<input type="checkbox" name="sweep">'
+        +'<div id="sweepParams"></div>'
+        )
+    }
     addSweep(s);
     s.show();
   }
