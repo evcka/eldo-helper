@@ -82,7 +82,7 @@
             <label>Parameter</label><input type="radio" name="simtype" value="PARAM">
           </div>
         </div>
-        <div class="row" id="trange">
+        <div class="row">
           <div class="six columns">
             <label>Component / Source / Parameter name</label>
             <input type="text" name="nam">
@@ -106,7 +106,7 @@
     </div>
 
     <div class="row" id="output_row">
-      <div class="six columns">
+      <div class="twelve columns">
         <button class="button-primary" onclick="gen()">Generate</button>
         <h4>eldo command</h4>
         <pre>
@@ -123,6 +123,12 @@
     $("#dc_setup").hide();
     $("#tran_setup").hide();
     var s = $("#ac_setup");
+    s.append(
+      '<label>Include Parameter Sweep</label>'
+      +'<input type="checkbox" name="sweep">'
+      +'<div id="sweepParams"></div>'
+      )
+    addSweep(s);
     s.show();
   }
 
@@ -130,6 +136,12 @@
     $("#ac_setup").hide();
     $("#tran_setup").hide();
     var s = $("#dc_setup");
+    s.append(
+      '<label>Include Parameter Sweep</label>'
+      +'<input type="checkbox" name="sweep">'
+      +'<div id="sweepParams"></div>'
+      )
+    addSweep(s);
     s.show();
   }
 
@@ -137,7 +149,45 @@
     $("#ac_setup").hide();
     $("#dc_setup").hide();
     var s = $("#tran_setup");
+    s.append(
+      '<label>Include Parameter Sweep</label>'
+      +'<input type="checkbox" name="sweep">'
+      +'<div id="sweepParams"></div>'
+      )
+    addSweep(s);
     s.show();
+  }
+
+  function addSweep(par) {
+    $('input[name=sweep]', par).change(function() {
+            if(this.checked) {
+              $('#sweepParams', par).empty()
+              $('#sweepParams', par).append(
+                '<div class="row">'
+                +'  <div class="six columns">'
+                +'    <label>Parameter name</label>'
+                +'    <input type="text" name="nam">'
+                +'  </div>'
+                +'</div>'
+                +'<div class="row" id="range">'
+                +'  <div class="four columns">'
+                +'    <label>Start</label>'
+                +'    <input type="text" name="start">'
+                +'  </div>'
+                +'  <div class="four columns">'
+                +'    <label>Stop</label>'
+                +'    <input type="text" name="stop">'
+                +'  </div>'
+                +'  <div class="four columns">'
+                +'    <label>Increment</label>'
+                +'    <input type="text" name="incr">'
+                +'  </div>'
+                +'</div>'
+                )
+            } else {
+              $('#sweepParams', par).empty()
+            }
+        });
   }
 
   function pushCommands(out, commands) {
@@ -155,6 +205,14 @@
     commands.push($('input[name=ppd]:text', '#acForm').val());
     commands.push($('input[name=ffrom]:text', '#acForm').val());
     commands.push($('input[name=fto]:text', '#acForm').val());
+    if ($('input[name=sweep]', '#ac_setup').is(":checked")) {
+      commands.push('SWEEP')
+      sweep_sel = $('#sweepParams', '#ac_setup')
+      commands.push($('input[name=nam]:text', sweep_sel).val());
+      commands.push($('input[name=start]:text', sweep_sel).val());
+      commands.push($('input[name=stop]:text', sweep_sel).val());
+      commands.push($('input[name=incr]:text', sweep_sel).val());
+    }
     pushCommands(out, commands)
   }
 
@@ -163,7 +221,6 @@
     commands.push('.DC')
     var radioVal = $('input[name=simtype]:checked', '#dcForm').val()
     if (!radioVal.localeCompare('TEMP')) {
-      console.log(radioVal);
       commands.push(radioVal)
     } else if (!radioVal.localeCompare('')) {
       commands.push($('input[name=nam]:text', '#dcForm').val());
@@ -175,6 +232,15 @@
     commands.push($('input[name=stop]:text', '#dcForm').val());
     commands.push($('input[name=incr]:text', '#dcForm').val());
 
+    if ($('input[name=sweep]', '#dc_setup').is(":checked")) {
+      commands.push('SWEEP')
+      sweep_sel = $('#sweepParams', '#dc_setup')
+      commands.push($('input[name=nam]:text', sweep_sel).val());
+      commands.push($('input[name=start]:text', sweep_sel).val());
+      commands.push($('input[name=stop]:text', sweep_sel).val());
+      commands.push($('input[name=incr]:text', sweep_sel).val());
+    }
+
     pushCommands(out, commands)
   }
 
@@ -184,6 +250,14 @@
     commands.push($('input[name=tprint]:text', '#tranForm').val());
     commands.push($('input[name=tstop]:text', '#tranForm').val());
     commands.push($('input[name=tto]:text', '#tranForm').val());
+    if ($('input[name=sweep]', '#tran_setup').is(":checked")) {
+      commands.push('SWEEP')
+      sweep_sel = $('#sweepParams', '#tran_setup')
+      commands.push($('input[name=nam]:text', sweep_sel).val());
+      commands.push($('input[name=start]:text', sweep_sel).val());
+      commands.push($('input[name=stop]:text', sweep_sel).val());
+      commands.push($('input[name=incr]:text', sweep_sel).val());
+    }
     pushCommands(out, commands)
   }
 
