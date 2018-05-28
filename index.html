@@ -14,13 +14,13 @@
 </head>
 <body>
   <div class="container">
-    <div class="row">
+    <div class="row" id="buttons">
       <div class="twelve columns" style="margin-top: 10%"></div>
       <h1>eldo helper</h1>
       <h2>Analysis Setup Helper</h2>
-      <button onclick="acSim()">AC</button>
-      <button onclick="dcSim()">DC</button>
-      <button onclick="tranSim()">TRAN</button>
+      <button onclick="acSim()" id="acButton" active="false">AC</button>
+      <button onclick="dcSim()" id="dcButton" active="false">DC</button>
+      <button onclick="tranSim()" id="tranButton" active="false">TRAN</button>
     </div> 
     <div id="ac_setup" hidden="true">
       <form id="acForm">
@@ -124,6 +124,8 @@
   }
 
   function acSim() {
+    $("button", "#buttons").attr('active', 'false')
+    $("#acButton").attr('active', 'true')
     $("#dc_setup").hide();
     $("#tran_setup").hide();
     var s = $("#ac_setup");
@@ -139,6 +141,8 @@
   }
 
   function dcSim() {
+    $("button", "#buttons").attr('active', 'false')
+    $("#dcButton").attr('active', 'true')
     $("#ac_setup").hide();
     $("#tran_setup").hide();
     var s = $("#dc_setup");
@@ -154,6 +158,8 @@
   }
 
   function tranSim() {
+    $("button", "#buttons").attr('active', 'false')
+    $("#tranButton").attr('active', 'true')
     $("#ac_setup").hide();
     $("#dc_setup").hide();
     var s = $("#tran_setup");
@@ -281,6 +287,7 @@
     } else if ($('#tran_setup').is(':visible')) {
       tranGen(o);
     }
+    // copyToClipboard('#output')
   }
 
   function copyToClipboard(element) {
